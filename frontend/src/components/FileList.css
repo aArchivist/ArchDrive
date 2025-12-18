@@ -1,0 +1,113 @@
+.file-list {
+  margin-top: 2rem;
+}
+
+.file-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.file-list-header h2 {
+  margin: 0;
+  color: #333;
+}
+
+.refresh-btn {
+  padding: 0.5rem 1rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #218838;
+}
+
+.no-files {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+  font-style: italic;
+}
+
+.files-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.files-table thead {
+  background: #007bff;
+  color: white;
+}
+
+.files-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.files-table td {
+  padding: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.files-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.download-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.download-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.delete-btn {
+  padding: 0.25rem 0.75rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.delete-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #dc3545;
+  padding: 1rem;
+  background: #f8d7da;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+

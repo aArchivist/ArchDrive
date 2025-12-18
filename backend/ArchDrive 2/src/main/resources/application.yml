@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: ArchDrive
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+server:
+  port: 8080
+
+cloudflare:
+  r2:
+    accountId: "448b270fdd5f2e13f74e298721ae0f93"
+    accessKey: "40cfa6aeef10a42ae9c6ae6f7bb9ea5f"
+    secretKey: "0aae2d080851b100c5c9c68461827e391f186383d8d5a871926439d9ccf1cfc2"
+    bucket: "archdrive-files"
+    endpoint: "https://448b270fdd5f2e13f74e298721ae0f93.r2.cloudflarestorage.com"
+    publicUrl: "" # Optional: Custom domain URL base (e.g., https://files.example.com)
+
+
