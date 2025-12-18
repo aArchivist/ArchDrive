@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/files';
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+});
 
 export interface StoredFile {
   id: string;
@@ -14,11 +16,15 @@ export const uploadFile = async (file: File): Promise<StoredFile> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await api.post<StoredFile>('/api/files/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await api.post<StoredFile>(
+    '/api/files/upload',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  );
 
   return response.data;
 };
@@ -33,12 +39,10 @@ export const downloadFile = async (fileName: string): Promise<void> => {
     responseType: 'blob',
   });
 
-  // Extract original filename (remove UUID prefix if present)
   const originalFileName = fileName.includes('_')
     ? fileName.substring(fileName.indexOf('_') + 1)
     : fileName;
 
-  // Create download link and trigger download
   const url = window.URL.createObjectURL(new Blob([response.data]));
   const link = document.createElement('a');
   link.href = url;
@@ -52,4 +56,3 @@ export const downloadFile = async (fileName: string): Promise<void> => {
 export const deleteFile = async (fileName: string): Promise<void> => {
   await api.delete(`/api/files/${fileName}`);
 };
-

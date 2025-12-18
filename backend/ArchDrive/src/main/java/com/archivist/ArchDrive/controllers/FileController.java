@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/files")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "https://arch-drive.vercel.app/", "https://arch-drive-aarchivists-projects.vercel.app/"})
 public class FileController {
 
     private static final Logger log = LoggerFactory.getLogger(FileController.class);
