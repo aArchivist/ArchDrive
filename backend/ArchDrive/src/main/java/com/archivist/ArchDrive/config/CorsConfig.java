@@ -17,7 +17,7 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
-        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "https://arch-drive.vercel.app/", "https://arch-drive-aarchivists-projects.vercel.app/"));
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:4000", "http://localhost:5173", "http://localhost:8080", "https://arch-drive.vercel.app/", "https://arch-drive-aarchivists-projects.vercel.app/"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

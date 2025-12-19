@@ -1,5 +1,6 @@
 package com.archivist.ArchDrive.controllers;
 
+import com.archivist.ArchDrive.model.Folder;
 import com.archivist.ArchDrive.model.StoredFile;
 import com.archivist.ArchDrive.service.storage.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,18 @@ public class FileController {
     private FileStorageService fileStorageService;
 
     @PostMapping("/upload")
-    public ResponseEntity<StoredFile> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<StoredFile> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String folder) {
+        log.info("Upload request received - file: {}, folder: {}", file.getOriginalFilename(), folder);
         try {
-            StoredFile storedFile = fileStorageService.uploadFile(file);
+            StoredFile storedFile;
+            if (folder != null && !folder.trim().isEmpty()) {
+                log.info("Uploading file '{}' to folder '{}'", file.getOriginalFilename(), folder);
+                storedFile = fileStorageService.uploadFile(file, folder);
+            } else {
+                log.info("Uploading file '{}' to root", file.getOriginalFilename());
+                storedFile = fileStorageService.uploadFile(file);
+            }
+            log.info("File uploaded successfully: {}", storedFile.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(storedFile);
         } catch (Exception e) {
             log.error("Upload failed: {}", e.getMessage(), e);
@@ -37,9 +47,18 @@ public class FileController {
     }
 
     @GetMapping
-    public ResponseEntity<List<StoredFile>> getAllFiles() {
+    public ResponseEntity<List<StoredFile>> getAllFiles(@RequestParam(required = false) String folder) {
         try {
-            List<StoredFile> files = fileStorageService.listFiles();
+            List<StoredFile> files;
+            if (folder != null && !folder.trim().isEmpty()) {
+                log.info("Listing files in folder: {}", folder);
+                files = fileStorageService.listFiles(folder);
+                log.info("Found {} files in folder {}", files.size(), folder);
+            } else {
+                log.info("Listing all files");
+                files = fileStorageService.listFiles();
+                log.info("Found {} total files", files.size());
+            }
             return ResponseEntity.ok(files);
         } catch (Exception e) {
             log.error("List files failed: {}", e.getMessage(), e);
@@ -47,8 +66,28 @@ public class FileController {
         }
     }
 
-    @GetMapping("/{fileName}")
-    public ResponseEntity<Resource> getFile(@PathVariable String fileName) {
+    @GetMapping("/folders")
+    public ResponseEntity<List<Folder>> getFolders(@RequestParam(required = false) String parent) {
+        try {
+            List<Folder> folders;
+            if (parent != null && !parent.trim().isEmpty()) {
+                log.info("Listing folders in parent: {}", parent);
+                folders = fileStorageService.listFolders(parent);
+                log.info("Found {} subfolders in {}", folders.size(), parent);
+            } else {
+                log.info("Listing all folders");
+                folders = fileStorageService.listFolders();
+                log.info("Found {} total folders", folders.size());
+            }
+            return ResponseEntity.ok(folders);
+        } catch (Exception e) {
+            log.error("List folders failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/download")
+    public ResponseEntity<Resource> getFile(@RequestParam("fileName") String fileName) {
         try {
             Resource resource = fileStorageService.downloadFile(fileName);
 
@@ -68,13 +107,147 @@ public class FileController {
         }
     }
 
-    @DeleteMapping("/{fileName}")
-    public ResponseEntity<Void> deleteFile(@PathVariable String fileName) {
+    @GetMapping("/preview")
+    public ResponseEntity<Resource> previewFile(@RequestParam("fileName") String fileName) {
         try {
+            log.info("Preview request for file: {}", fileName);
+            Resource resource = fileStorageService.downloadFile(fileName);
+
+            // Determine content type based on file extension
+            String contentType = determineContentType(fileName);
+            log.info("Determined content type: {} for file: {}", contentType, fileName);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(resource);
+        } catch (Exception e) {
+            log.error("Preview failed for {}: {}", fileName, e.getMessage(), e);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private String determineContentType(String fileName) {
+        String extension = "";
+        if (fileName.contains(".")) {
+            extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        }
+
+        switch (extension) {
+            // Images
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "png":
+                return "image/png";
+            case "gif":
+                return "image/gif";
+            case "webp":
+                return "image/webp";
+            case "svg":
+                return "image/svg+xml";
+            case "bmp":
+                return "image/bmp";
+            case "ico":
+                return "image/x-icon";
+
+            // Text files
+            case "txt":
+                return "text/plain;charset=UTF-8";
+            case "md":
+                return "text/markdown;charset=UTF-8";
+            case "json":
+                return "application/json;charset=UTF-8";
+            case "xml":
+                return "application/xml;charset=UTF-8";
+            case "html":
+            case "htm":
+                return "text/html;charset=UTF-8";
+            case "css":
+                return "text/css;charset=UTF-8";
+            case "js":
+                return "application/javascript;charset=UTF-8";
+            case "ts":
+                return "application/typescript;charset=UTF-8";
+            case "java":
+                return "text/x-java-source;charset=UTF-8";
+            case "py":
+                return "text/x-python;charset=UTF-8";
+            case "sql":
+                return "application/sql;charset=UTF-8";
+            case "yaml":
+            case "yml":
+                return "application/x-yaml;charset=UTF-8";
+
+            // Documents
+            case "pdf":
+                return "application/pdf";
+
+            // Video
+            case "mp4":
+                return "video/mp4";
+            case "webm":
+                return "video/webm";
+            case "avi":
+                return "video/x-msvideo";
+            case "mov":
+                return "video/quicktime";
+            case "wmv":
+                return "video/x-ms-wmv";
+
+            // Audio
+            case "mp3":
+                return "audio/mpeg";
+            case "wav":
+                return "audio/wav";
+            case "ogg":
+                return "audio/ogg";
+            case "aac":
+                return "audio/aac";
+            case "flac":
+                return "audio/flac";
+
+            default:
+                return "application/octet-stream";
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteFile(@RequestParam("fileName") String fileName) {
+        try {
+            log.info("Deleting file: {}", fileName);
             fileStorageService.deleteFile(fileName);
+            log.info("File deleted successfully: {}", fileName);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             log.error("Delete failed for {}: {}", fileName, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/folders")
+    public ResponseEntity<Folder> createFolder(@RequestParam("name") String folderName, @RequestParam(required = false) String parent) {
+        try {
+            String fullFolderName = folderName;
+            if (parent != null && !parent.trim().isEmpty()) {
+                // Remove trailing slash from parent and add it to folder name
+                String parentPath = parent.endsWith("/") ? parent.substring(0, parent.length() - 1) : parent;
+                fullFolderName = parentPath + "/" + folderName;
+            }
+            Folder folder = fileStorageService.createFolder(fullFolderName);
+            return ResponseEntity.status(HttpStatus.CREATED).body(folder);
+        } catch (Exception e) {
+            log.error("Create folder failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/folders/{folderName}")
+    public ResponseEntity<Void> deleteFolder(@PathVariable String folderName) {
+        try {
+            fileStorageService.deleteFolder(folderName);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Delete folder failed: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

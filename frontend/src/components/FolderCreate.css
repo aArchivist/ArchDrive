@@ -1,0 +1,81 @@
+.folder-create {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #dadce0;
+}
+
+.folder-create h3 {
+  margin: 0 0 16px 0;
+  color: #202124;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.create-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.create-controls input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.create-controls input:focus {
+  border-color: #1967d2;
+  box-shadow: 0 0 0 2px rgba(25, 103, 210, 0.2);
+}
+
+.create-controls input::placeholder {
+  color: #5f6368;
+}
+
+.create-btn {
+  padding: 12px 24px;
+  background: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.create-btn:hover:not(:disabled) {
+  background: #1557b0;
+}
+
+.create-btn:disabled {
+  background: #dadce0;
+  cursor: not-allowed;
+}
+
+.create-btn i {
+  font-size: 18px;
+}
+
+.error {
+  color: #ea4335;
+  margin-top: 12px;
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.error i {
+  font-size: 16px;
+}
