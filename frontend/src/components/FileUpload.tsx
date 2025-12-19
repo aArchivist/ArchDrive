@@ -4,7 +4,7 @@ import './FileUpload.css';
 
 interface FileUploadProps {
   onUploadSuccess: () => void;
-  currentFolder?: string;
+  currentFolder?: string | null;
 }
 
 export const FileUpload = ({ onUploadSuccess, currentFolder }: FileUploadProps) => {
@@ -51,7 +51,7 @@ export const FileUpload = ({ onUploadSuccess, currentFolder }: FileUploadProps) 
     setError(null);
 
     try {
-      await uploadFileToFolder(selectedFile, currentFolder);
+      await uploadFileToFolder(selectedFile, currentFolder || undefined);
       setSelectedFile(null);
       // Reset file input
       if (fileInputRef.current) {

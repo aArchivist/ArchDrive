@@ -28,17 +28,13 @@ public class FileController {
 
     @PostMapping("/upload")
     public ResponseEntity<StoredFile> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String folder) {
-        log.info("Upload request received - file: {}, folder: {}", file.getOriginalFilename(), folder);
         try {
             StoredFile storedFile;
             if (folder != null && !folder.trim().isEmpty()) {
-                log.info("Uploading file '{}' to folder '{}'", file.getOriginalFilename(), folder);
                 storedFile = fileStorageService.uploadFile(file, folder);
             } else {
-                log.info("Uploading file '{}' to root", file.getOriginalFilename());
                 storedFile = fileStorageService.uploadFile(file);
             }
-            log.info("File uploaded successfully: {}", storedFile.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(storedFile);
         } catch (Exception e) {
             log.error("Upload failed: {}", e.getMessage(), e);
@@ -51,13 +47,9 @@ public class FileController {
         try {
             List<StoredFile> files;
             if (folder != null && !folder.trim().isEmpty()) {
-                log.info("Listing files in folder: {}", folder);
                 files = fileStorageService.listFiles(folder);
-                log.info("Found {} files in folder {}", files.size(), folder);
             } else {
-                log.info("Listing all files");
                 files = fileStorageService.listFiles();
-                log.info("Found {} total files", files.size());
             }
             return ResponseEntity.ok(files);
         } catch (Exception e) {
@@ -71,13 +63,9 @@ public class FileController {
         try {
             List<Folder> folders;
             if (parent != null && !parent.trim().isEmpty()) {
-                log.info("Listing folders in parent: {}", parent);
                 folders = fileStorageService.listFolders(parent);
-                log.info("Found {} subfolders in {}", folders.size(), parent);
             } else {
-                log.info("Listing all folders");
                 folders = fileStorageService.listFolders();
-                log.info("Found {} total folders", folders.size());
             }
             return ResponseEntity.ok(folders);
         } catch (Exception e) {
@@ -110,12 +98,10 @@ public class FileController {
     @GetMapping("/preview")
     public ResponseEntity<Resource> previewFile(@RequestParam("fileName") String fileName) {
         try {
-            log.info("Preview request for file: {}", fileName);
             Resource resource = fileStorageService.downloadFile(fileName);
 
             // Determine content type based on file extension
             String contentType = determineContentType(fileName);
-            log.info("Determined content type: {} for file: {}", contentType, fileName);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(contentType))
@@ -214,9 +200,7 @@ public class FileController {
     @DeleteMapping
     public ResponseEntity<Void> deleteFile(@RequestParam("fileName") String fileName) {
         try {
-            log.info("Deleting file: {}", fileName);
             fileStorageService.deleteFile(fileName);
-            log.info("File deleted successfully: {}", fileName);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             log.error("Delete failed for {}: {}", fileName, e.getMessage(), e);

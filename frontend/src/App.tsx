@@ -17,11 +17,6 @@ function App() {
     setCurrentFolder(folder);
   };
 
-  const getCurrentFolderName = () => {
-    if (!currentFolder) return "Мій диск";
-    // This would need to be improved to get actual folder name from API
-    return currentFolder.replace(/\/$/, "").split('/').pop() || "Мій диск";
-  };
 
   const getBreadcrumb = () => {
     if (!currentFolder) return null;

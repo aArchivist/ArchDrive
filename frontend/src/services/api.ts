@@ -64,34 +64,26 @@ export const downloadFile = async (fileName: string): Promise<void> => {
 };
 
 export const previewFile = async (fileName: string): Promise<{ url: string; contentType: string; data: Blob; textContent?: string }> => {
-  console.log('previewFile called with:', fileName);
-  try {
-    const response = await api.get('/api/files/preview', {
-      params: { fileName },
-      responseType: 'blob',
-    });
+  const response = await api.get('/api/files/preview', {
+    params: { fileName },
+    responseType: 'blob',
+  });
 
-    console.log('Preview API response received');
-    const contentType = response.headers['content-type'] || 'application/octet-stream';
-    const url = window.URL.createObjectURL(response.data);
+  const contentType = response.headers['content-type'] || 'application/octet-stream';
+  const url = window.URL.createObjectURL(response.data);
 
-    // For text files, also get text content
-    let textContent: string | undefined;
-    if (contentType.startsWith('text/') || contentType.includes('javascript') || contentType.includes('json') || contentType.includes('xml')) {
-      textContent = await response.data.text();
-    }
-
-    console.log('previewFile returning result');
-    return {
-      url,
-      contentType,
-      data: response.data,
-      textContent
-    };
-  } catch (error) {
-    console.error('previewFile error:', error);
-    throw error;
+  // For text files, also get text content
+  let textContent: string | undefined;
+  if (contentType.startsWith('text/') || contentType.includes('javascript') || contentType.includes('json') || contentType.includes('xml')) {
+    textContent = await response.data.text();
   }
+
+  return {
+    url,
+    contentType,
+    data: response.data,
+    textContent
+  };
 };
 
 export const deleteFile = async (fileName: string): Promise<void> => {

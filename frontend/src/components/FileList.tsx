@@ -40,7 +40,7 @@ const FilePreview = ({ url, contentType, fileName, textContent }: { url: string;
 
     if (contentType.startsWith('text/') || contentType.includes('javascript') || contentType.includes('json') || contentType.includes('xml')) {
       return (
-        <TextFilePreview textContent={textContent} contentType={contentType} />
+        <TextFilePreview textContent={textContent} />
       );
     }
 
@@ -61,7 +61,7 @@ const FilePreview = ({ url, contentType, fileName, textContent }: { url: string;
 };
 
 // Text file preview component
-const TextFilePreview = ({ textContent, contentType }: { textContent?: string; contentType: string }) => {
+const TextFilePreview = ({ textContent }: { textContent?: string }) => {
   if (!textContent) {
     return (
       <div className="preview-error">
@@ -80,7 +80,7 @@ const TextFilePreview = ({ textContent, contentType }: { textContent?: string; c
 
 interface FileListProps {
   refreshTrigger?: number;
-  currentFolder?: string;
+  currentFolder?: string | null;
   onFolderChange?: (folder: string | null) => void;
 }
 
@@ -91,15 +91,12 @@ export const FileList = ({ refreshTrigger, currentFolder, onFolderChange }: File
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<{ name: string; url: string; contentType: string; textContent?: string } | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
 
   const loadFiles = async () => {
     try {
       setLoading(true);
-      console.log('Loading files for folder:', currentFolder);
-      const fileList = await api.getFilesInFolder(currentFolder);
-      const folderList = await api.getFolders(currentFolder);
-      console.log('Loaded files:', fileList.length, 'folders:', folderList.length);
+      const fileList = await api.getFilesInFolder(currentFolder || undefined);
+      const folderList = await api.getFolders(currentFolder || undefined);
       setFiles(fileList);
       setFolders(folderList);
       setError(null);
@@ -180,12 +177,9 @@ export const FileList = ({ refreshTrigger, currentFolder, onFolderChange }: File
     }
 
     try {
-      console.log('Deleting file:', fileName);
       setDeleting(fileName);
       await api.deleteFile(fileName);
-      console.log('File deleted, reloading...');
       await loadFiles(); // Reload list after deletion
-      console.log('Files reloaded after deletion');
     } catch (err) {
       setError('Помилка видалення файлу');
       console.error('Delete error:', err);
@@ -196,12 +190,7 @@ export const FileList = ({ refreshTrigger, currentFolder, onFolderChange }: File
 
   const handlePreview = async (file: StoredFile) => {
     try {
-      console.log('handlePreview called with file:', file.fileName);
-      console.log('previewFile function:', typeof api.previewFile);
-      setPreviewLoading(true);
-      console.log('Calling api.previewFile...');
       const preview = await api.previewFile(file.id);
-      console.log('api.previewFile returned successfully');
       setPreviewFile({
         name: file.fileName,
         url: preview.url,
@@ -211,8 +200,6 @@ export const FileList = ({ refreshTrigger, currentFolder, onFolderChange }: File
     } catch (err) {
       setError('Помилка завантаження попереднього перегляду');
       console.error('Preview error:', err);
-    } finally {
-      setPreviewLoading(false);
     }
   };
 
@@ -231,17 +218,6 @@ export const FileList = ({ refreshTrigger, currentFolder, onFolderChange }: File
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const formatDate = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) {
-        return 'Невідома дата';
-      }
-      return date.toLocaleString('uk-UA');
-    } catch (e) {
-      return 'Невідома дата';
-    }
-  };
 
   if (loading) {
     return <div className="file-list">Завантаження...</div>;

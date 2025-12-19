@@ -4,7 +4,7 @@ import './FolderCreate.css';
 
 interface FolderCreateProps {
   onFolderCreated: () => void;
-  currentFolder?: string;
+  currentFolder?: string | null;
 }
 
 export const FolderCreate = ({ onFolderCreated, currentFolder }: FolderCreateProps) => {
@@ -22,7 +22,7 @@ export const FolderCreate = ({ onFolderCreated, currentFolder }: FolderCreatePro
     setError(null);
 
     try {
-      await createFolder(folderName.trim(), currentFolder);
+      await createFolder(folderName.trim(), currentFolder || undefined);
       setFolderName('');
       onFolderCreated();
     } catch (err) {
