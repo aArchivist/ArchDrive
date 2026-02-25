@@ -212,10 +212,19 @@ export const FileList = ({ refreshTrigger, currentFolder, onFolderChange }: File
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
+
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+
+    if (i === 0) {
+      // Для байтів показуємо точну кількість
+      return bytes + ' ' + sizes[i];
+    }
+
+    // Для інших одиниць показуємо 2 знаки після коми
+    const value = bytes / Math.pow(k, i);
+    return value.toFixed(2) + ' ' + sizes[i];
   };
 
 

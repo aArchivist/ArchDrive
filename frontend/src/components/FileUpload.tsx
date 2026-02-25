@@ -14,6 +14,23 @@ export const FileUpload = ({ onUploadSuccess, currentFolder }: FileUploadProps) 
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    if (i === 0) {
+      // Для байтів показуємо точну кількість
+      return bytes + ' ' + sizes[i];
+    }
+
+    // Для інших одиниць показуємо 2 знаки після коми
+    const value = bytes / Math.pow(k, i);
+    return value.toFixed(2) + ' ' + sizes[i];
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
@@ -93,7 +110,7 @@ export const FileUpload = ({ onUploadSuccess, currentFolder }: FileUploadProps) 
           {selectedFile ? `Вибрано: ${selectedFile.name}` : 'Перетягніть файл сюди або натисніть для вибору'}
         </div>
         <div className="upload-subtext">
-          {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'Підтримуються всі типи файлів'}
+          {selectedFile ? formatFileSize(selectedFile.size) : 'Підтримуються всі типи файлів'}
         </div>
       </div>
 
